@@ -21,12 +21,17 @@ function runLengthEncode(string) {
 
     encoded += `${lastCharacter},${count},`;
 
-    // prevent immediate breaking
     lastCharacter = character;
     count = 1;
   }
 
-  encoded += `${lastCharacter},${count}`;
+  // don't need to repeat 0's on the end in this case since they represent no change
+  if (lastCharacter !== "0") {
+    encoded += `${lastCharacter},${count}`;
+  } else {
+    // remove trailing comma
+    encoded = encoded.slice(0, -1);
+  }
 
   return EMPTY_FRAME.test(encoded) ? "" : encoded;
 }

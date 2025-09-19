@@ -7,12 +7,15 @@ CONST NO_CHANGE := 0;
 CONST BLACK := 1;
 CONST WHITE := 2;
 
+CONST HORIZONTAL := 0;
+CONST VERTICAL := 1;
+
 EXPORT MAIN()
 BEGIN
   LOCAL nextTick_ms := TICKS();
-  LOCAL frame = 1;
+  LOCAL frame := 1;
 
-  RECT(RGB(0, 0, 0));
+  RECT(#000000h);
 
   WHILE true DO
     IF ISKEYDOWN(KEY_ESC) THEN
@@ -30,48 +33,62 @@ BEGIN
     if sleep_s > 0 THEN
       WAIT(sleep_s);
     ELSE
-      nextTick_ms = tickTime_ms;
+      nextTick_ms := tickTime_ms;
     END;
 
     LOCAL frameData := FRAMES[frame];
-    LOCAL frameDataLength := SIZE(frameData) / 2;
-    LOCAL i := 1;
-    LOCAL x := 0;
-    LOCAL y := 0;
+    LOCAL frameDataLength := SIZE(frameData - 1) / 2;
+    LOCAL direction := frameData[1];
+    LOCAL major := 0;
+    LOCAL minor := 0;
+    LOCAL i;
 
-    WHILE i <= frameDataLength DO
-      LOCAL delta := frameData(i * 2 - 1);
-      LOCAL chunkSize := frameData(i * 2);
+    LOCAL sideLength := when(direction == HORIZONTAL, 319, 239);
+
+    FOR i FROM 1 TO frameDataLength DO
+      LOCAL delta := frameData[i * 2];
+      LOCAL chunkSize := frameData[i * 2 + 1];
 
       IF delta == NO_CHANGE THEN
-        x := x + chunkSize;
-        y := y + FLOOR(x / 319);
-        x := x MOD 319;
+        major := major + chunkSize;
 
-        // skip the while loop
-        chunkSize := 0;
+        IF major > sideLength THEN
+          minor := minor + FLOOR(major / sideLength);
+          major := major MOD sideLength;
+        END;
+
+        CONTINUE;
       END;
 
       WHILE chunkSize > 0 DO
-        LOCAL usableChunkSize := MIN(319 - x, chunkSize);
+        LOCAL usableChunkSize := MIN(sideLength - major, chunkSize);
+        LOCAL colour;
 
-        IF delta == BLACK THEN
-          LINE_P(x, y, x + usableChunkSize, y, RGB(0, 0, 0));
-        END;
-        IF delta == WHITE THEN
-          LINE_P(x, y, x + usableChunkSize, y, RGB(255, 255, 255));
+        LOCAL j;
+        LOCAL end := major + usableChunkSize;
+
+        IF direction == HORIZONTAL THEN
+          IF delta == BLACK THEN
+            RECT_P(major, minor, major + usableChunkSize, minor, #000000h);
+          ELSE
+            RECT_P(major, minor, major + usableChunkSize, minor, #FFFFFFh);
+          END;
+        ELSE
+          IF delta == BLACK THEN
+            RECT_P(minor, major, minor, major + usableChunkSize, #000000h);
+          ELSE
+            RECT_P(minor, major, minor, major + usableChunkSize, #FFFFFFh);
+          END;
         END;
 
         chunkSize := chunkSize - usableChunkSize;
-        x := x + usableChunkSize;
+        major := major + usableChunkSize;
 
-        IF x == 319 THEN
-          y := y + 1;
-          x := 0;
+        IF major == sideLength THEN
+          minor := minor + 1;
+          major := 0;
         END;
       END;
-
-      i := i + 1;
     END;
 
     frame := frame + 1;
