@@ -1,5 +1,7 @@
 // @ts-check
 
+const EMPTY_FRAME = /^0\,\d+$/;
+
 /**
  * @param { string } string
  * @returns { string }
@@ -25,7 +27,8 @@ function runLengthEncode(string) {
   }
 
   encoded += `${lastCharacter},${count}`;
-  return encoded;
+
+  return EMPTY_FRAME.test(encoded) ? "" : encoded;
 }
 
 module.exports = { runLengthEncode };

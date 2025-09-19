@@ -1,19 +1,18 @@
-CONST KEY_ESC = 4;
+CONST KEY_ESC := 4;
 
 CONST FPS := 30;
-CONST FRAME_TIME = 1 / FPS;
+CONST FRAME_TIME := 1 / FPS;
 
-CONST NO_CHANGE = 0;
-CONST BLACK = 1;
-CONST WHITE = 2;
+CONST NO_CHANGE := 0;
+CONST BLACK := 1;
+CONST WHITE := 2;
 
 EXPORT MAIN()
 BEGIN
-  LOCAL lastTick_ms := TICKS();
+  LOCAL nextTick_ms := TICKS();
   LOCAL frame = 1;
 
   RECT(RGB(0, 0, 0));
-  WAIT(FRAME_TIME);
 
   WHILE true DO
     IF ISKEYDOWN(KEY_ESC) THEN
@@ -25,11 +24,13 @@ BEGIN
     END;
 
     LOCAL tickTime_ms := TICKS();
-    LOCAL deltaTime_s := 0.001 * (tickTime_ms - lastTick_ms);
-    lastTick_ms := tickTime_ms;
+    nextTick_ms := nextTick_ms + FRAME_TIME * 1000;
+    LOCAL sleep_s := 0.001 * (nextTick_ms - tickTime_ms);
 
-    if deltaTime_s < FRAME_TIME THEN
-      WAIT(FRAME_TIME - deltaTime_s);
+    if sleep_s > 0 THEN
+      WAIT(sleep_s);
+    ELSE
+      nextTick_ms = tickTime_ms;
     END;
 
     LOCAL frameData := FRAMES[frame];
@@ -38,9 +39,18 @@ BEGIN
     LOCAL x := 0;
     LOCAL y := 0;
 
-    WHILE i < frameDataLength DO
+    WHILE i <= frameDataLength DO
       LOCAL delta := frameData(i * 2 - 1);
       LOCAL chunkSize := frameData(i * 2);
+
+      IF delta == NO_CHANGE THEN
+        x := x + chunkSize;
+        y := y + FLOOR(x / 319);
+        x := x MOD 319;
+
+        // skip the while loop
+        chunkSize := 0;
+      END;
 
       WHILE chunkSize > 0 DO
         LOCAL usableChunkSize := MIN(319 - x, chunkSize);

@@ -8,13 +8,14 @@ const { runLengthEncode } = require("./runLengthEncode.cjs");
 
 const VIDEO_PATH = path.resolve(__dirname, "../src/Bad Apple.mp4");
 const OUTPUT = path.resolve(__dirname, `../frames`);
-const NUM_FRAMES = 500;
-const START_TIME = 0;
+const NUM_FRAMES = 1000;
+// in terms of frames. video is 30fps
+const START_TIME = 0 / 30;
 const DIMENSIONS = {
   x: 319,
   y: 239,
 };
-const LIGHTNESS_THRESHOLD = 200;
+const LIGHTNESS_THRESHOLD = 127;
 
 async function extractFrames() {
   if (fs.existsSync(OUTPUT)) {
@@ -63,15 +64,13 @@ async function encode() {
     height: DIMENSIONS.y,
     color: "#000",
   }).bitmap.data;
-  for (let i = 0; i < frames.length; i++) {
-    const frame = frames[i];
+  for (const frame of frames) {
     const pixelCount = DIMENSIONS.x * DIMENSIONS.y;
     let encoded = "";
 
     for (let i = 0; i < pixelCount; i++) {
-      // all pixels are grayscale
-      const lightness = frame[i * 4];
-      const lastFrameLightness = lastFrame[i * 4];
+      const lightness = getLightness(frame, i);
+      const lastFrameLightness = getLightness(lastFrame, i);
       const encodedPixel = lightness > LIGHTNESS_THRESHOLD ? WHITE : BLACK;
       const lastFramePixel =
         lastFrameLightness > LIGHTNESS_THRESHOLD ? WHITE : BLACK;
@@ -86,6 +85,20 @@ async function encode() {
   }
 
   return encodedFrames;
+}
+
+/**
+ * @param { Buffer } image
+ * @param { number } pixelIndex
+ * @returns { number }
+ */
+function getLightness(image, pixelIndex) {
+  return (
+    (image[pixelIndex * 4] +
+      image[pixelIndex * 4 + 1] +
+      image[pixelIndex * 4 + 2]) /
+    3
+  );
 }
 
 module.exports = {
