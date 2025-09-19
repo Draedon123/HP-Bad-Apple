@@ -36,60 +36,8 @@ BEGIN
       nextTick_ms := tickTime_ms;
     END;
 
-    LOCAL frameData := FRAMES[frame];
-    LOCAL frameDataLength := SIZE(frameData - 1) / 2;
-    LOCAL direction := frameData[1];
-    LOCAL major := 0;
-    LOCAL minor := 0;
-    LOCAL i;
-
-    LOCAL sideLength := when(direction == HORIZONTAL, 319, 239);
-
-    FOR i FROM 1 TO frameDataLength DO
-      LOCAL delta := frameData[i * 2];
-      LOCAL chunkSize := frameData[i * 2 + 1];
-
-      IF delta == NO_CHANGE THEN
-        major := major + chunkSize;
-
-        IF major > sideLength THEN
-          minor := minor + FLOOR(major / sideLength);
-          major := major MOD sideLength;
-        END;
-
-        CONTINUE;
-      END;
-
-      WHILE chunkSize > 0 DO
-        LOCAL usableChunkSize := MIN(sideLength - major, chunkSize);
-        LOCAL colour;
-
-        LOCAL j;
-        LOCAL end := major + usableChunkSize;
-
-        IF direction == HORIZONTAL THEN
-          IF delta == BLACK THEN
-            RECT_P(major, minor, major + usableChunkSize, minor, #000000h);
-          ELSE
-            RECT_P(major, minor, major + usableChunkSize, minor, #FFFFFFh);
-          END;
-        ELSE
-          IF delta == BLACK THEN
-            RECT_P(minor, major, minor, major + usableChunkSize, #000000h);
-          ELSE
-            RECT_P(minor, major, minor, major + usableChunkSize, #FFFFFFh);
-          END;
-        END;
-
-        chunkSize := chunkSize - usableChunkSize;
-        major := major + usableChunkSize;
-
-        IF major == sideLength THEN
-          minor := minor + 1;
-          major := 0;
-        END;
-      END;
-    END;
+    RENDER_FRAME(frame);
+    TEXTOUT_P(frame, 10, 10, 4, #FF0000h, 64, #FFFFFFh);
 
     frame := frame + 1;
   END;

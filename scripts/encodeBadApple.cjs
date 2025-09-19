@@ -9,9 +9,9 @@ const { runLengthEncode } = require("./runLengthEncode.cjs");
 const VIDEO_PATH = path.resolve(__dirname, "../src/Bad Apple.mp4");
 const OUTPUT = path.resolve(__dirname, `../frames`);
 const LOG_PATH = path.resolve(__dirname, "../frameData.txt");
-const NUM_FRAMES = 500;
+const NUM_FRAMES = 1000;
 // in terms of frames. video is 30fps
-const START_TIME = 0 / 30;
+const START_TIME = 140 / 30;
 const DIMENSIONS = {
   x: 319,
   y: 239,
@@ -19,24 +19,25 @@ const DIMENSIONS = {
 const LIGHTNESS_THRESHOLD = 127;
 
 async function extractFrames() {
-  // if (fs.existsSync(OUTPUT)) {
-  //   console.log("Clearing frames directory");
-  //   fs.rmSync(OUTPUT, { recursive: true });
-  // }
+  if (fs.existsSync(OUTPUT)) {
+    console.log("Clearing frames directory");
+    fs.rmSync(OUTPUT, { recursive: true });
+  }
 
-  // fs.mkdirSync(OUTPUT);
-  // console.log("Cleared frames directory");
+  fs.mkdirSync(OUTPUT);
+  console.log("Cleared frames directory");
 
-  // console.log("Extracting frames\n");
-  // const framesParameter =
-  //   NUM_FRAMES === Infinity ? "" : `-frames:v ${NUM_FRAMES}`;
-  // execSync(
-  //   `cd frames && ffmpeg -ss ${START_TIME} -i "${VIDEO_PATH}" -s ${DIMENSIONS.x}x${DIMENSIONS.y} -f image2 ${framesParameter} frame-%03d.jpeg`
-  // );
-  // console.log("\nFrames extracted");
+  console.log("Extracting frames\n");
+  const framesParameter =
+    NUM_FRAMES === Infinity ? "" : `-frames:v ${NUM_FRAMES}`;
+  execSync(
+    `cd frames && ffmpeg -ss ${START_TIME} -i "${VIDEO_PATH}" -s ${DIMENSIONS.x}x${DIMENSIONS.y} -f image2 ${framesParameter} frame-%03d.jpeg`
+  );
+  console.log("\nFrames extracted");
 
   const promises = fs
     .readdirSync(OUTPUT, { withFileTypes: true })
+    .sort((a, b) => frameNumberFromPath(a.name) - frameNumberFromPath(b.name))
     .map(async (dirent) => {
       const filePath = path.join(dirent.parentPath, dirent.name);
       const buffer = fs.readFileSync(filePath);
@@ -156,6 +157,15 @@ function getLightness(image, pixelIndex, indexDirection) {
       image[pixelIndex * 4 + 2]) /
     3
   );
+}
+
+/**
+ * @param { string } path
+ * @returns { number }
+ */
+function frameNumberFromPath(path) {
+  // "frame-10.jpeg" -> ["frame", "10", "jpeg"] -> 10
+  return parseInt(path.split(/-|\./)[1]);
 }
 
 module.exports = {
