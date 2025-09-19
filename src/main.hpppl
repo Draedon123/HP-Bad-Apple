@@ -3,11 +3,16 @@ CONST KEY_ESC = 4;
 CONST FPS := 30;
 CONST FRAME_TIME = 1 / FPS;
 
+CONST NO_CHANGE = 0;
+CONST BLACK = 1;
+CONST WHITE = 2;
+
 EXPORT MAIN()
 BEGIN
   LOCAL lastTick_ms := TICKS();
   LOCAL frame = 1;
 
+  RECT(RGB(0, 0, 0));
   WAIT(FRAME_TIME);
 
   WHILE true DO
@@ -28,25 +33,26 @@ BEGIN
     END;
 
     LOCAL frameData := FRAMES[frame];
-    LOCAL frameDataLength := SIZE(frameData);
-    LOCAL draw := frameData(1);
-    LOCAL i := 2;
+    LOCAL frameDataLength := SIZE(frameData) / 2;
+    LOCAL i := 1;
     LOCAL x := 0;
     LOCAL y := 0;
 
-    RECT(RGB(0, 0, 0));
-
     WHILE i < frameDataLength DO
-      LOCAL chunk := frameData(i);
+      LOCAL delta := frameData(i * 2 - 1);
+      LOCAL chunkSize := frameData(i * 2);
 
-      WHILE chunk > 0 DO
-        LOCAL usableChunkSize := MIN(319 - x, chunk);
+      WHILE chunkSize > 0 DO
+        LOCAL usableChunkSize := MIN(319 - x, chunkSize);
 
-        IF draw == 1 THEN
+        IF delta == BLACK THEN
+          LINE_P(x, y, x + usableChunkSize, y, RGB(0, 0, 0));
+        END;
+        IF delta == WHITE THEN
           LINE_P(x, y, x + usableChunkSize, y, RGB(255, 255, 255));
         END;
 
-        chunk := chunk - usableChunkSize;
+        chunkSize := chunkSize - usableChunkSize;
         x := x + usableChunkSize;
 
         IF x == 319 THEN
@@ -55,7 +61,6 @@ BEGIN
         END;
       END;
 
-      draw := 1 - draw;
       i := i + 1;
     END;
 

@@ -5,8 +5,7 @@
  * @returns { string }
  */
 function runLengthEncode(string) {
-  // header, which determines parity of 1 and 0s
-  let encoded = `${string[0]},`;
+  let encoded = "";
   let lastCharacter = string[0];
   let count = 1;
 
@@ -18,15 +17,14 @@ function runLengthEncode(string) {
       continue;
     }
 
-    // don't need to append the repeated character since it alternates between 1 and 0
-    encoded += `${count},`;
+    encoded += `${lastCharacter},${count},`;
 
     // prevent immediate breaking
     lastCharacter = character;
     count = 1;
   }
 
-  encoded += `${count}`;
+  encoded += `${lastCharacter},${count}`;
   return encoded;
 }
 

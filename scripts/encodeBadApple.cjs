@@ -35,16 +35,20 @@ async function extractFrames() {
 
   const promises = fs
     .readdirSync(OUTPUT, { withFileTypes: true })
-    .map((dirent) => {
+    .map(async (dirent) => {
       const filePath = path.join(dirent.parentPath, dirent.name);
       const buffer = fs.readFileSync(filePath);
-      const image = Jimp.fromBuffer(buffer);
+      const image = await Jimp.fromBuffer(buffer);
 
-      return image;
+      return image.bitmap.data;
     });
 
   return await Promise.all(promises);
 }
+
+const WHITE = 2;
+const BLACK = 1;
+const NO_CHANGE = 0;
 
 /**
  * @returns { Promise<string[]> }
@@ -54,20 +58,31 @@ async function encode() {
   /** @type { string[] } */
   const encodedFrames = [];
 
-  for (const frame of frames) {
-    const pixelCount = frame.width * frame.height;
+  let lastFrame = new Jimp({
+    width: DIMENSIONS.x,
+    height: DIMENSIONS.y,
+    color: "#000",
+  }).bitmap.data;
+  for (let i = 0; i < frames.length; i++) {
+    const frame = frames[i];
+    const pixelCount = DIMENSIONS.x * DIMENSIONS.y;
     let encoded = "";
 
     for (let i = 0; i < pixelCount; i++) {
       // all pixels are grayscale
-      const lightness = frame.bitmap.data[i * 4];
-      const encodedPixel = lightness > LIGHTNESS_THRESHOLD ? 1 : 0;
+      const lightness = frame[i * 4];
+      const lastFrameLightness = lastFrame[i * 4];
+      const encodedPixel = lightness > LIGHTNESS_THRESHOLD ? WHITE : BLACK;
+      const lastFramePixel =
+        lastFrameLightness > LIGHTNESS_THRESHOLD ? WHITE : BLACK;
 
-      encoded += encodedPixel;
+      encoded += encodedPixel === lastFramePixel ? NO_CHANGE : encodedPixel;
     }
 
     const compressed = runLengthEncode(encoded);
     encodedFrames.push(compressed);
+
+    lastFrame = frame;
   }
 
   return encodedFrames;
