@@ -3,25 +3,19 @@ CONST KEY_ESC = 4;
 CONST FPS := 30;
 CONST FRAME_TIME = 1 / FPS;
 
-// index 0 is the last element, black, and index 1 is the first, white
-CONST COLOURS := {RGB(255, 255, 255), RGB(0, 0, 0)};
-
 EXPORT MAIN()
 BEGIN
-  LOCAL running := true;
   LOCAL lastTick_ms := TICKS();
   LOCAL frame = 1;
 
   WAIT(FRAME_TIME);
 
-  WHILE running DO
+  WHILE true DO
     IF ISKEYDOWN(KEY_ESC) THEN
-      running := false;
       KILL;
     END;
 
     IF frame > SIZE(FRAMES) THEN
-      running := false;
       FREEZE;
     END;
 
@@ -35,17 +29,22 @@ BEGIN
 
     LOCAL frameData := FRAMES[frame];
     LOCAL frameDataLength := SIZE(frameData);
-    LOCAL colourIndex := frameData(1);
+    LOCAL draw := frameData(1);
     LOCAL i := 2;
     LOCAL x := 0;
     LOCAL y := 0;
+
+    RECT(RGB(0, 0, 0));
 
     WHILE i < frameDataLength DO
       LOCAL chunk := frameData(i);
 
       WHILE chunk > 0 DO
         LOCAL usableChunkSize := MIN(319 - x, chunk);
-        LINE_P(x, y, x + usableChunkSize, y, COLOURS(colourIndex));
+
+        IF draw == 1 THEN
+          LINE_P(x, y, x + usableChunkSize, y, RGB(255, 255, 255));
+        END;
 
         chunk := chunk - usableChunkSize;
         x := x + usableChunkSize;
@@ -56,7 +55,7 @@ BEGIN
         END;
       END;
 
-      colourIndex := 1 - colourIndex;
+      draw := 1 - draw;
       i := i + 1;
     END;
 

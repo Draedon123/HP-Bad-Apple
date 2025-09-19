@@ -8,9 +8,8 @@ const { runLengthEncode } = require("./runLengthEncode.cjs");
 
 const VIDEO_PATH = path.resolve(__dirname, "../src/Bad Apple.mp4");
 const OUTPUT = path.resolve(__dirname, `../frames`);
-const NUM_FRAMES = 1;
-// frame 42. video is 30fps
-const START_TIME = 100 / 30;
+const NUM_FRAMES = 500;
+const START_TIME = 0;
 const DIMENSIONS = {
   x: 319,
   y: 239,
@@ -27,8 +26,10 @@ async function extractFrames() {
   console.log("Cleared frames directory");
 
   console.log("Extracting frames\n");
+  const framesParameter =
+    NUM_FRAMES === Infinity ? "" : `-frames:v ${NUM_FRAMES}`;
   execSync(
-    `cd frames && ffmpeg -ss ${START_TIME} -i "${VIDEO_PATH}" -s ${DIMENSIONS.x}x${DIMENSIONS.y} -f image2 -frames:v ${NUM_FRAMES} frame-%03d.jpeg`
+    `cd frames && ffmpeg -ss ${START_TIME} -i "${VIDEO_PATH}" -s ${DIMENSIONS.x}x${DIMENSIONS.y} -f image2 ${framesParameter} frame-%03d.jpeg`
   );
   console.log("\nFrames extracted");
 

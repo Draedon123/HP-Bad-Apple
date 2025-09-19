@@ -9,6 +9,7 @@ const SOURCE_DIRECTORY = path.resolve(__dirname, "../src");
 
 async function main() {
   const frames = await encode();
+
   const sourceFiles = fs
     .readdirSync(SOURCE_DIRECTORY, {
       recursive: true,
