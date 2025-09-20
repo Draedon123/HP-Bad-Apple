@@ -10,9 +10,9 @@ BEGIN
   LOCAL sideLength;
 
   IF direction == HORIZONTAL THEN
-    sideLength := 319;
+    sideLength := 320;
   ELSE
-    sideLength := 239;
+    sideLength := 240;
   END;
 
   FOR i FROM 1 TO frameDataLength DO
@@ -22,7 +22,7 @@ BEGIN
     IF delta == NO_CHANGE THEN
       major := major + chunkSize;
 
-      IF major > sideLength THEN
+      IF major >= sideLength THEN
         minor := minor + FLOOR(major / sideLength);
         major := major MOD sideLength;
       END;
@@ -32,22 +32,18 @@ BEGIN
 
     WHILE chunkSize > 0 DO
       LOCAL usableChunkSize := MIN(sideLength - major, chunkSize);
-      LOCAL colour;
-
-      LOCAL j;
-      LOCAL end := major + usableChunkSize;
 
       IF direction == HORIZONTAL THEN
         IF delta == BLACK THEN
-          RECT_P(major, minor, major + usableChunkSize, minor, #000000h);
+          RECT_P(major, minor, major + usableChunkSize - 1, minor, #000000h);
         ELSE
-          RECT_P(major, minor, major + usableChunkSize, minor, #FFFFFFh);
+          RECT_P(major, minor, major + usableChunkSize - 1, minor, #FFFFFFh);
         END;
       ELSE
         IF delta == BLACK THEN
-          RECT_P(minor, major, minor, major + usableChunkSize, #000000h);
+          RECT_P(minor, major, minor, major + usableChunkSize - 1, #000000h);
         ELSE
-          RECT_P(minor, major, minor, major + usableChunkSize, #FFFFFFh);
+          RECT_P(minor, major, minor, major + usableChunkSize - 1, #FFFFFFh);
         END;
       END;
 

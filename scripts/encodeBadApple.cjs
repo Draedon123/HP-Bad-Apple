@@ -9,12 +9,12 @@ const { runLengthEncode } = require("./runLengthEncode.cjs");
 const VIDEO_PATH = path.resolve(__dirname, "../src/Bad Apple.mp4");
 const OUTPUT = path.resolve(__dirname, `../frames`);
 const LOG_PATH = path.resolve(__dirname, "../frameData.txt");
-const NUM_FRAMES = 1000;
+const NUM_FRAMES = 100;
 // in terms of frames. video is 30fps
-const START_TIME = 140 / 30;
+const START_TIME = 360 / 30;
 const DIMENSIONS = {
-  x: 319,
-  y: 239,
+  x: 320,
+  y: 240,
 };
 const LIGHTNESS_THRESHOLD = 127;
 
@@ -79,10 +79,11 @@ async function encode() {
       [VERTICAL]: encodeFrame(frame, lastFrame, VERTICAL),
     };
 
-    const betterDirection =
-      directions[HORIZONTAL].drawCalls <= directions[VERTICAL].drawCalls
-        ? HORIZONTAL
-        : VERTICAL;
+    // const betterDirection =
+    //   directions[HORIZONTAL].drawCalls <= directions[VERTICAL].drawCalls
+    //     ? HORIZONTAL
+    //     : VERTICAL;
+    const betterDirection = i % 2 === 0 ? HORIZONTAL : VERTICAL;
     const compressed = runLengthEncode(directions[betterDirection].encoded);
     encodedFrames.push(
       compressed === ""
@@ -119,9 +120,9 @@ function encodeFrame(frame, lastFrame, direction) {
   let drawCalls = 0;
   let lastPixelValue = -1;
 
-  for (let j = 0; j < PIXEL_COUNT; j++) {
-    const lightness = getLightness(frame, j, direction);
-    const lastFrameLightness = getLightness(lastFrame, j, direction);
+  for (let i = 0; i < PIXEL_COUNT; i++) {
+    const lightness = getLightness(frame, i, direction);
+    const lastFrameLightness = getLightness(lastFrame, i, direction);
     const encodedPixel = lightness > LIGHTNESS_THRESHOLD ? WHITE : BLACK;
     const lastFramePixel =
       lastFrameLightness > LIGHTNESS_THRESHOLD ? WHITE : BLACK;
