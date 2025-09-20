@@ -9,9 +9,9 @@ const { runLengthEncode } = require("./runLengthEncode.cjs");
 const VIDEO_PATH = path.resolve(__dirname, "../src/Bad Apple.mp4");
 const OUTPUT = path.resolve(__dirname, `../frames`);
 const LOG_PATH = path.resolve(__dirname, "../frameData.txt");
-const NUM_FRAMES = 100;
+const NUM_FRAMES = Infinity;
 // in terms of frames. video is 30fps
-const START_TIME = 360 / 30;
+const START_TIME = 0 / 30;
 const DIMENSIONS = {
   x: 320,
   y: 240,
@@ -79,11 +79,10 @@ async function encode() {
       [VERTICAL]: encodeFrame(frame, lastFrame, VERTICAL),
     };
 
-    // const betterDirection =
-    //   directions[HORIZONTAL].drawCalls <= directions[VERTICAL].drawCalls
-    //     ? HORIZONTAL
-    //     : VERTICAL;
-    const betterDirection = i % 2 === 0 ? HORIZONTAL : VERTICAL;
+    const betterDirection =
+      directions[HORIZONTAL].drawCalls <= directions[VERTICAL].drawCalls
+        ? HORIZONTAL
+        : VERTICAL;
     const compressed = runLengthEncode(directions[betterDirection].encoded);
     encodedFrames.push(
       compressed === ""

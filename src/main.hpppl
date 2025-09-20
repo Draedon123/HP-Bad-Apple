@@ -1,6 +1,6 @@
 CONST KEY_ESC := 4;
 
-CONST FPS := 1;
+CONST FPS := 30;
 CONST FRAME_TIME := 1 / FPS;
 
 CONST NO_CHANGE := 0;
@@ -37,7 +37,7 @@ BEGIN
     END;
 
     RENDER_FRAME(frame);
-    TEXTOUT_P(frame, 10, 10, 4, #FF0000h, 64, #FFFFFFh);
+    //TEXTOUT_P(frame, 10, 10, 4, #FF0000h, 64, #FFFFFFh);
 
     frame := frame + 1;
   END;
