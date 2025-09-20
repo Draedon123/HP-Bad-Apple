@@ -4,7 +4,7 @@ const { encode } = require("./encodeBadApple.cjs");
 const fs = require("fs");
 const path = require("path");
 
-const OUTPUT_FILE = path.resolve(__dirname, "../build.hpppl");
+const OUTPUT_FILE = path.resolve(__dirname, "../Bad Apple.hpppl");
 const SOURCE_DIRECTORY = path.resolve(__dirname, "../src");
 
 async function main() {
@@ -23,10 +23,12 @@ async function main() {
     )
     .join("\n");
 
-  const joinedFrames = frames.map((frame) => `{${frame}}`).join(",");
+  const joinedFrames = frames.map((frame) => `"${frame}"`).join(",");
   const framesAsList = `CONST FRAMES := {${joinedFrames}};\n`;
 
-  fs.writeFileSync(OUTPUT_FILE, framesAsList + sourceFiles);
+  fs.writeFileSync(OUTPUT_FILE, framesAsList + sourceFiles, {
+    encoding: "utf-8",
+  });
 }
 
 main();

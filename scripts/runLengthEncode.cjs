@@ -1,6 +1,10 @@
 // @ts-check
 
 const EMPTY_FRAME = /^0\,\d+$/;
+// 160 removes all control characters, but apparently U+00A0 (160 in decimal) can't be used either?
+const OFFSET = 161;
+// stop before surrogate characters
+const MAX_COUNT = 0xd7ff - OFFSET;
 
 /**
  * @param { string } string
@@ -14,12 +18,12 @@ function runLengthEncode(string) {
   for (let i = 1; i < string.length; i++) {
     const character = string[i];
 
-    if (character === lastCharacter) {
+    if (character === lastCharacter && count < MAX_COUNT) {
       count++;
       continue;
     }
 
-    encoded += `${lastCharacter},${count},`;
+    encoded += encodePair(lastCharacter, count);
 
     lastCharacter = character;
     count = 1;
@@ -27,13 +31,22 @@ function runLengthEncode(string) {
 
   // don't need to repeat 0's on the end in this case since they represent no change
   if (lastCharacter !== "0") {
-    encoded += `${lastCharacter},${count}`;
-  } else {
-    // remove trailing comma
-    encoded = encoded.slice(0, -1);
+    encoded += encodePair(lastCharacter, count);
   }
 
   return EMPTY_FRAME.test(encoded) ? "" : encoded;
 }
 
-module.exports = { runLengthEncode };
+/**
+ * @param { string } character
+ * @param { number } count
+ * @returns { string }
+ */
+function encodePair(character, count) {
+  return `${String.fromCodePoint(parseInt(character) + OFFSET)}${String.fromCodePoint(count + OFFSET)}`;
+}
+
+module.exports = {
+  runLengthEncode,
+  OFFSET,
+};

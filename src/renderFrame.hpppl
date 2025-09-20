@@ -1,8 +1,10 @@
+CONST OFFSET := 161;
+
 RENDER_FRAME(frame)
 BEGIN
   LOCAL frameData := FRAMES[frame];
-  LOCAL frameDataLength := (SIZE(frameData) - 1) / 2;
-  LOCAL direction := frameData[1];
+  LOCAL frameDataLength := (DIM(frameData) - 1) / 2;
+  LOCAL direction := frameData[1] - OFFSET;
   LOCAL major := 0;
   LOCAL minor := 0;
   LOCAL i;
@@ -16,8 +18,8 @@ BEGIN
   END;
 
   FOR i FROM 1 TO frameDataLength DO
-    LOCAL delta := frameData[i * 2];
-    LOCAL chunkSize := frameData[i * 2 + 1];
+    LOCAL delta := frameData[i * 2] - OFFSET;
+    LOCAL chunkSize := frameData[i * 2 + 1] - OFFSET;
 
     IF delta == NO_CHANGE THEN
       major := major + chunkSize;

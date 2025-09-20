@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const { Jimp } = require("jimp");
 const { execSync } = require("child_process");
-const { runLengthEncode } = require("./runLengthEncode.cjs");
+const { runLengthEncode, OFFSET } = require("./runLengthEncode.cjs");
 
 const VIDEO_PATH = path.resolve(__dirname, "../src/Bad Apple.mp4");
 const OUTPUT = path.resolve(__dirname, `../frames`);
@@ -84,10 +84,9 @@ async function encode() {
         ? HORIZONTAL
         : VERTICAL;
     const compressed = runLengthEncode(directions[betterDirection].encoded);
+    const encodedDirection = String.fromCodePoint(betterDirection + OFFSET);
     encodedFrames.push(
-      compressed === ""
-        ? betterDirection.toString()
-        : `${betterDirection},${compressed}`
+      compressed === "" ? encodedDirection : `${encodedDirection}${compressed}`
     );
 
     fs.appendFileSync(
@@ -97,7 +96,6 @@ async function encode() {
         betterDirection === HORIZONTAL ? "H" : "V",
         directions[betterDirection].drawCalls,
         compressed.length,
-        compressed,
       ].join(" ") + "\n"
     );
 
