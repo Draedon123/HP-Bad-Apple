@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+
+  width: 100vw;
+  height: 100vh;
+
+  overflow: hidden;
+}
+
+canvas {
+  aspect-ratio: 320 / 240;
+
+  width: 90%;
+  max-height: 90vh;
+  max-width: calc(320 / 240 * 90vh);
+
+  border: 1px solid black;
+}
+
+#app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
+  height: 100%;
+}
+
+#loading {
+  position: absolute;
+  z-index: 999;
+  font-size: xx-large;
+}

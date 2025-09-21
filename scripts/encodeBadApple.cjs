@@ -1,53 +1,14 @@
 // @ts-check
 
-const path = require("path");
-const fs = require("fs");
 const { Jimp } = require("jimp");
-const { execSync } = require("child_process");
+const { extractFrames } = require("./extractFrames.cjs");
 const { runLengthEncode, OFFSET } = require("./runLengthEncode.cjs");
 
-const VIDEO_PATH = path.resolve(__dirname, "../src/Bad Apple.mp4");
-const OUTPUT = path.resolve(__dirname, `../frames`);
-const LOG_PATH = path.resolve(__dirname, "../frameData.txt");
-const NUM_FRAMES = Infinity;
-// in terms of frames. video is 30fps
-const START_TIME = 0 / 30;
+const LIGHTNESS_THRESHOLD = 64;
 const DIMENSIONS = {
   x: 320,
   y: 240,
 };
-const LIGHTNESS_THRESHOLD = 127;
-
-async function extractFrames() {
-  if (fs.existsSync(OUTPUT)) {
-    console.log("Clearing frames directory");
-    fs.rmSync(OUTPUT, { recursive: true });
-  }
-
-  fs.mkdirSync(OUTPUT);
-  console.log("Cleared frames directory");
-
-  console.log("Extracting frames\n");
-  const framesParameter =
-    NUM_FRAMES === Infinity ? "" : `-frames:v ${NUM_FRAMES}`;
-  execSync(
-    `cd frames && ffmpeg -ss ${START_TIME} -i "${VIDEO_PATH}" -s ${DIMENSIONS.x}x${DIMENSIONS.y} -f image2 ${framesParameter} frame-%03d.jpeg`
-  );
-  console.log("\nFrames extracted");
-
-  const promises = fs
-    .readdirSync(OUTPUT, { withFileTypes: true })
-    .sort((a, b) => frameNumberFromPath(a.name) - frameNumberFromPath(b.name))
-    .map(async (dirent) => {
-      const filePath = path.join(dirent.parentPath, dirent.name);
-      const buffer = fs.readFileSync(filePath);
-      const image = await Jimp.fromBuffer(buffer);
-
-      return image.bitmap.data;
-    });
-
-  return await Promise.all(promises);
-}
 
 const NO_CHANGE = 0;
 const BLACK = 1;
@@ -70,7 +31,7 @@ async function encode() {
     color: "#000",
   }).bitmap.data;
 
-  fs.writeFileSync(LOG_PATH, "");
+  console.log("Encoding frames");
 
   for (let i = 0; i < frames.length; i++) {
     const frame = frames[i];
@@ -87,16 +48,6 @@ async function encode() {
     const encodedDirection = String.fromCodePoint(betterDirection + OFFSET);
     encodedFrames.push(
       compressed === "" ? encodedDirection : `${encodedDirection}${compressed}`
-    );
-
-    fs.appendFileSync(
-      LOG_PATH,
-      [
-        `Frame ${i + 1}:`,
-        betterDirection === HORIZONTAL ? "H" : "V",
-        directions[betterDirection].drawCalls,
-        compressed.length,
-      ].join(" ") + "\n"
     );
 
     lastFrame = frame;
@@ -155,15 +106,6 @@ function getLightness(image, pixelIndex, indexDirection) {
       image[pixelIndex * 4 + 2]) /
     3
   );
-}
-
-/**
- * @param { string } path
- * @returns { number }
- */
-function frameNumberFromPath(path) {
-  // "frame-10.jpeg" -> ["frame", "10", "jpeg"] -> 10
-  return parseInt(path.split(/-|\./)[1]);
 }
 
 module.exports = {
