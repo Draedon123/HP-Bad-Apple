@@ -4,7 +4,7 @@ const { Jimp } = require("jimp");
 const { extractFrames } = require("./extractFrames.cjs");
 const { runLengthEncode, OFFSET } = require("./runLengthEncode.cjs");
 
-const LIGHTNESS_THRESHOLD = 64;
+const LIGHTNESS_THRESHOLD = 150;
 const DIMENSIONS = {
   x: 320,
   y: 240,

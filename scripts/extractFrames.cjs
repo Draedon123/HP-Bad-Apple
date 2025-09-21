@@ -14,21 +14,23 @@ const DIMENSIONS = {
 };
 
 async function extractFrames() {
-  if (fs.existsSync(OUTPUT)) {
-    console.log("Clearing frames directory");
-    fs.rmSync(OUTPUT, { recursive: true });
+  const option = process.argv[2];
+
+  if (option === "-genframes" || option === undefined) {
+    if (fs.existsSync(OUTPUT)) {
+      console.log("Clearing frames directory");
+      fs.rmSync(OUTPUT, { recursive: true });
+    }
+
+    fs.mkdirSync(OUTPUT);
+    console.log("Extracting frames\n");
+    const framesParameter =
+      NUM_FRAMES === Infinity ? "" : `-frames:v ${NUM_FRAMES}`;
+
+    execSync(
+      `cd frames && ffmpeg -ss ${START_TIME} -i "${VIDEO_PATH}" -s ${DIMENSIONS.x}x${DIMENSIONS.y} -f image2 ${framesParameter} frame-%03d.jpeg`
+    );
   }
-
-  fs.mkdirSync(OUTPUT);
-
-  console.log("Extracting frames\n");
-
-  const framesParameter =
-    NUM_FRAMES === Infinity ? "" : `-frames:v ${NUM_FRAMES}`;
-
-  execSync(
-    `cd frames && ffmpeg -ss ${START_TIME} -i "${VIDEO_PATH}" -s ${DIMENSIONS.x}x${DIMENSIONS.y} -f image2 ${framesParameter} frame-%03d.jpeg`
-  );
 
   console.log("\nLoading frames");
 
