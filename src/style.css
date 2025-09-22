@@ -1,10 +1,7 @@
 body {
   margin: 0;
 
-  width: 100vw;
-  height: 100vh;
-
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 canvas {
@@ -19,15 +16,31 @@ canvas {
 
 #app {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding-bottom: 1em;
+}
+
+#canvas-container {
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  min-height: 100vh;
 }
 
 #loading {
   position: absolute;
   z-index: 999;
   font-size: xx-large;
+  max-width: calc(320 / 240 * 90vh);
+  text-align: center;
+}
+
+iframe {
+  width: 80%;
+  aspect-ratio: 1920 / 1080;
 }

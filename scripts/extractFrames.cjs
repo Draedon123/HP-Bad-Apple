@@ -16,7 +16,7 @@ const DIMENSIONS = {
 async function extractFrames() {
   const option = process.argv[2];
 
-  if (option === "-genframes" || option === undefined) {
+  if (option === "-genframes") {
     if (fs.existsSync(OUTPUT)) {
       console.log("Clearing frames directory");
       fs.rmSync(OUTPUT, { recursive: true });

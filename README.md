@@ -4,7 +4,7 @@
 
 A program that can render Bad Apple on a HP Prime G2 Graphing Calculator.
 
-A demo of the program running on an emulator can be found [here](https://youtu.be/qDuJ1DxRWTY)
+A demo of the program running on an emulator and the physical calculator can be found [here](https://youtu.be/qDuJ1DxRWTY) and [here](https://youtu.be/izJUZ2tYca0) respectively
 
 A web port of the program is available [here](https://draedon123.github.io/HP-Bad-Apple/)
 

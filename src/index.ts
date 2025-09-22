@@ -22,7 +22,6 @@ async function main(): Promise<void> {
     `${import.meta.env.BASE_URL}/frames.txt`,
     (_, buffer) => {
       if (buffer === null) {
-        loadingElement.remove();
         return;
       }
 
@@ -35,6 +34,7 @@ async function main(): Promise<void> {
 
   const FRAMES = rawFramesData.split("\n");
 
+  const audio = document.querySelector("audio") as HTMLAudioElement;
   const canvas = document.getElementById("main") as HTMLCanvasElement;
   const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
@@ -44,17 +44,67 @@ async function main(): Promise<void> {
 
   RECT_P(0, 0, canvas.width, canvas.height, "black");
 
+  loadingElement.textContent =
+    "Click Space to start/pause (has audio). YouTube Demos below";
+  loadingElement.style.color = "white";
+
   let frame = 1;
-  const timeout = setInterval(() => {
-    if (frame > FRAMES.length) {
-      clearInterval(timeout);
+  let timeout: NodeJS.Timeout | null = null;
+
+  document.addEventListener("keydown", async (event) => {
+    if (event.code !== "Space") {
       return;
     }
 
-    renderFrame(frame);
+    event.preventDefault();
+    loadingElement.remove();
 
-    frame++;
-  }, FRAME_TIME * 1000);
+    if (timeout === null) {
+      await start();
+    } else {
+      stop();
+    }
+  });
+
+  let expected = 0;
+  async function start(): Promise<void> {
+    if (frame >= FRAMES.length) {
+      frame = 1;
+    }
+
+    audio.currentTime = (frame - 1) * FRAME_TIME;
+    await audio.play();
+    expected = performance.now() + FRAME_TIME * 1000;
+
+    function step() {
+      if (frame > FRAMES.length) {
+        clearTimeout(timeout as NodeJS.Timeout);
+        timeout = null;
+        return;
+      }
+
+      const drift = performance.now() - expected;
+      if (drift > FRAME_TIME * 1000) {
+        audio.currentTime = (frame - 1) * FRAME_TIME;
+        expected = performance.now();
+      }
+      expected += FRAME_TIME * 1000;
+
+      renderFrame(frame);
+      frame++;
+
+      timeout = setTimeout(step, Math.max(0, FRAME_TIME * 1000 - drift));
+    }
+
+    timeout = setTimeout(step, FRAME_TIME * 1000);
+  }
+
+  function stop(): void {
+    audio.pause();
+
+    clearTimeout(timeout as NodeJS.Timeout);
+    timeout = null;
+  }
 
   function renderFrame(frame: number) {
     const frameData = FRAMES[frame - 1];
