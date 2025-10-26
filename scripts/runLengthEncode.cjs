@@ -1,7 +1,7 @@
 // @ts-check
 
 const EMPTY_FRAME = /^0,\d+$/;
-// 160 removes all control characters, but apparently U+00A0 (160 in decimal) can't be used either?
+// removes all control (U+0000 to U+00A0, which is 160 in decimal)
 const OFFSET = 161;
 // stop before surrogate characters
 const MAX_COUNT = 0xd7ff - OFFSET;

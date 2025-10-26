@@ -21,7 +21,7 @@ const VERTICAL = 1;
  * @returns { Promise<string[]> }
  */
 async function encode() {
-  const frames = await extractFrames();
+  const frames = await extractFrames(DIMENSIONS);
   /** @type { string[] } */
   const encodedFrames = [];
 

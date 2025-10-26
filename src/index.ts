@@ -10,6 +10,9 @@ const BLACK = 1;
 const HORIZONTAL = 0;
 // const VERTICAL = 1;
 
+const DIMENSIONS_X = 320;
+const DIMENSIONS_Y = 160;
+
 const OFFSET = 161;
 
 const FRAME_DATA_SIZE_MB = 18.67;
@@ -110,7 +113,7 @@ async function main(): Promise<void> {
     const frameData = FRAMES[frame - 1];
     const frameDataLength = (frameData.length - 1) / 2;
     const direction = frameData.charCodeAt(0) - OFFSET;
-    const sideLength = direction === HORIZONTAL ? 320 : 240;
+    const sideLength = direction === HORIZONTAL ? DIMENSIONS_X : DIMENSIONS_Y;
 
     let major = 0;
     let minor = 0;

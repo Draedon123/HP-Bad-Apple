@@ -2,9 +2,9 @@
   "scripts": {
     "dev": "vite",
     "generateFrames": "node scripts/build.cjs -genframes",
-    "prebuild": "npm run format",
+    "prebuild": "pnpm format",
     "build": "tsc && node scripts/build.cjs && vite build",
-    "fullbuild": "npm run generateFrames && npm run build",
+    "fullbuild": "pnpm generateFrames && pnpm build",
     "preview": "vite preview",
     "lint": "eslint src",
     "format": "prettier -w src",

@@ -1,5 +1,8 @@
 CONST OFFSET := 161;
 
+const DIMENSIONS_X := 320;
+const DIMENSIONS_Y := 240;
+
 RENDER_FRAME(frame)
 BEGIN
   LOCAL frameData := FRAMES[frame];
@@ -12,9 +15,9 @@ BEGIN
   LOCAL sideLength;
 
   IF direction == HORIZONTAL THEN
-    sideLength := 320;
+    sideLength := DIMENSIONS_X;
   ELSE
-    sideLength := 240;
+    sideLength := DIMENSIONS_Y;
   END;
 
   FOR i FROM 1 TO frameDataLength DO
